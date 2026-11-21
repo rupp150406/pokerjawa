@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description"
+    content="Ketuk kartu untuk menyusun tangan Poker Jawa, lalu salin prompt AI yang siap ditempel.">
+  <meta name="theme-color" content="#FAFAF7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#161616" media="(prefers-color-scheme: dark)">
+  <title>Menu Kartu ♠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAFAF7;
+      --tile: #F0F0EC;
+      --tile2: #E6E6E1;
+      --ink: #161616;
+      --mute: #8A8A85;
+      --red: #D64545;
+      --on-ink: #FFFFFF;
+      --bar: #FFFFFF;
+      --box: #FFFFFF;
+      --badge-bg: #FFFFFF;
+      --badge-ink: #161616;
+      --shadow: 0 -2px 12px rgba(0, 0, 0, .06);
+      --backdrop: rgba(22, 22, 22, .34);
+      --sheet-shadow: 0 20px 60px rgba(0, 0, 0, .18);
+      --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #161616;
+        --tile: #232321;
+        --tile2: #2C2C29;
+        --ink: #FAFAF7;
+        --mute: #8A8A85;
+        --red: #E06060;
+        --on-ink: #161616;
+        --bar: #1E1E1C;
+        --box: #232321;
+        --badge-bg: #161616;
+        --badge-ink: #FAFAF7;
+        --shadow: 0 -2px 12px rgba(0, 0, 0, .5);
+        --backdrop: rgba(0, 0, 0, .58);
+        --sheet-shadow: 0 20px 60px rgba(0, 0, 0, .55);
+      }
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--bg);
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overscroll-behavior-y: none;
+    }
+
+    body.no-scroll {
+      overflow: hidden;
+    }
+
+    button {
+      font-family: inherit;
+      color: inherit;
+      background: none;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    :focus {
+      outline: none;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--mute);
+      outline-offset: 2px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100dvh;
+    }
+
+    .screen {
+      padding: max(56px, calc(16px + env(safe-area-inset-top))) 16px calc(110px + env(safe-area-inset-bottom));
+    }
+
+    /* ---------- Screen 1 ---------- */
+
+    .app-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .app-header h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 34px;
+      letter-spacing: 0;
+    }
+
+    .app-header p {
+      margin: 4px 0 0;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 17px;
+      color: var(--mute);
+    }
+
+    .link-btn {
+      flex: none;
+      margin-top: 6px;
+      padding: 6px 0 6px 8px;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 16px;
+      color: var(--mute);
+      border-radius: 6px;
+      transition: opacity .15s ease;
+    }
+
+    .link-btn:hover {
+      opacity: .7;
+    }
+
+    .link-btn:active {
+      opacity: .5;
+    }
+
+    .suits {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .suit {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .suit-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 24px;
+    }
+
+    .suit-mark {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 24px;
+      color: var(--ink);
+    }
+
+    .suit.red .suit-mark {
+      color: var(--red);
+    }
+
+    .suit-name {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 19px;
+      color: var(--ink);
+    }
+
+    .suit-count {
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 16px;
+      color: var(--mute);
+      white-space: nowrap;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .tile {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      aspect-ratio: 44 / 58;
+      border-radius: 10px;
+      background: var(--tile);
+      color: var(--ink);
+      transition: background-color .15s ease, color .15s ease, transform .1s ease;
+    }
+
+    .tile .rank {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 22px;
+    }
+
+    .tile .pip {
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 16px;
+    }
+
+    .tile.red {
+      color: var(--red);
+    }
+
+    .tile.on {
+      background: var(--ink);
+      color: var(--on-ink);
+    }
+
+    .tile:active {
+      transform: scale(.96);
+    }
+
+    .badge {
+      position: absolute;
+      top: 4px;
+      right: 3px;
+      display: none;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 3px;
+      border-radius: 8px;
+      background: var(--badge-bg);
+      color: var(--badge-ink);
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 16px;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tile.on .badge {
+      display: block;
+    }
+
+    .badge.wide {
+      padding: 0 2px;
+      font-size: 9px;
+      letter-spacing: -.02em;
+    }
+
+    .tile.trash {
+      background: var(--tile2);
+      color: var(--ink);
+    }
+
+    .tile.trash svg {
+      width: 20px;
+      height: 20px;
+      display: block;
+    }
+
+    @media (hover: hover) {
+      .tile:hover {
+        background: var(--tile2);
+      }
+
+      .tile.on:hover {
+        background: var(--ink);
+        filter: brightness(1.12);
+      }
+
+      .tile.trash:hover {
+        filter: brightness(.96);
+      }
+    }
+
+    /* ---------- Bottom bar ---------- */
+
+    .bottom-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 20;
+      background: var(--bar);
+      box-shadow: var(--shadow);
+      padding: 16px 16px calc(20px + env(safe-area-inset-bottom));
+    }
+
+    .bar-inner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      max-width: 448px;
+      margin: 0 auto;
+    }
+
+    .summary {
+      flex: 1 1 auto;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .summary-title {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 18px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .summary-cards {
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 15px;
+      color: var(--mute);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border-radius: 14px;
+      background: var(--ink);
+      color: var(--on-ink);
+      font-weight: 700;
+      white-space: nowrap;
+      transition: opacity .15s ease, transform .1s ease;
+    }
+
+    .btn-primary:hover {
+      opacity: .88;
+    }
+
+    .btn-primary:active {
+      transform: scale(.985);
+    }
+
+    .generate-btn {
+      flex: none;
+      min-height: 46px;
+      padding: 14px 20px;
+      font-size: 15px;
+      line-height: 18px;
+    }
+
+    .generate-btn .arrow {
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    /* ---------- Screen 2 ---------- */
+
+    #screen-prompt {
+      padding-top: max(130px, calc(16px + env(safe-area-inset-top)));
+      padding-bottom: calc(32px + env(safe-area-inset-bottom));
+    }
+
+    .prompt-head {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+
+    .back-btn {
+      align-self: flex-start;
+      margin-bottom: 0;
+      padding: 4px 4px 4px 0;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 17px;
+      color: var(--mute);
+      transition: opacity .15s ease;
+    }
+
+    .back-btn:hover {
+      opacity: .7;
+    }
+
+    .back-btn:active {
+      opacity: .5;
+    }
+
+    .prompt-head h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 34px;
+    }
+
+    .prompt-head p {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 17px;
+      color: var(--mute);
+    }
+
+    .hand-box {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px 12px;
+      margin-bottom: 16px;
+      padding: 16px;
+      border-radius: 14px;
+      background: var(--tile);
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 17px;
+    }
+
+    .hand-label {
+      flex: none;
+    }
+
+    .hand-cards {
+      min-width: 0;
+      word-break: break-word;
+    }
+
+    .prompt-box {
+      margin-bottom: 16px;
+      padding: 16px;
+      border-radius: 14px;
+      background: var(--box);
+    }
+
+    .prompt-label {
+      margin-bottom: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 13px;
+      letter-spacing: .06em;
+      color: var(--mute);
+    }
+
+    .prompt-text {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 22px;
+      color: var(--ink);
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .copy-btn {
+      width: 100%;
+      min-height: 51px;
+      padding: 16px 20px;
+      font-size: 16px;
+      line-height: 19px;
+    }
+
+    /* ---------- Toast ---------- */
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(100px + env(safe-area-inset-bottom));
+      z-index: 60;
+      max-width: calc(100vw - 32px);
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: var(--on-ink);
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      opacity: 0;
+      transform: translate(-50%, 8px);
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .toast.on-prompt {
+      bottom: calc(24px + env(safe-area-inset-bottom));
+    }
+
+    /* ---------- How it works sheet ---------- */
+
+    .sheet {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+      background: var(--backdrop);
+    }
+
+    .sheet-card {
+      width: 100%;
+      max-width: 448px;
+      padding: 24px 20px 20px;
+      border-radius: 22px;
+      background: var(--bg);
+      box-shadow: var(--sheet-shadow);
+      animation: sheet-in .22s ease both;
+    }
+
+    @keyframes sheet-in {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .sheet-card h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 24px;
+    }
+
+    .sheet-card ol {
+      counter-reset: step;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 16px 0 20px;
+      padding: 0;
+    }
+
+    .sheet-card li {
+      counter-increment: step;
+      display: flex;
+      gap: 12px;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 20px;
+    }
+
+    .sheet-card li::before {
+      content: counter(step);
+      flex: none;
+      width: 22px;
+      height: 22px;
+      margin-top: -1px;
+      border-radius: 50%;
+      background: var(--tile);
+      color: var(--mute);
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 22px;
+      text-align: center;
+    }
+
+    .sheet-close {
+      width: 100%;
+      min-height: 46px;
+      padding: 14px 20px;
+      font-size: 15px;
+      line-height: 18px;
+    }
+
+    @media (max-width: 360px) {
+      .generate-btn {
+        padding: 14px;
+        font-size: 14px;
+      }
+
+      .summary-title {
+        font-size: 14px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="app">
+    <section id="screen-cards" class="screen" aria-labelledby="cards-title">
+      <header class="app-header">
+        <div>
+          <h1 id="cards-title">Menu Kartu ♠</h1>
+          <p>Ketuk kartu untuk menambahkan ke tangan Anda</p>
+        </div>
+        <button id="how-link" class="link-btn" type="button">Cara kerja</button>
+      </header>
+      <div id="suits" class="suits"></div>
+    </section>
+
+    <section id="screen-prompt" class="screen" aria-labelledby="prompt-title" hidden>
+      <div class="prompt-head">
+        <button id="back-btn" class="back-btn" type="button">← Edit kartu</button>
+        <h1 id="prompt-title">Prompt Anda</h1>
+        <p>Siap ditempel ke AI chat apa pun</p>
+      </div>
+
+      <div class="hand-box">
+        <span class="hand-label">Tangan</span>
+        <span id="hand-cards" class="hand-cards"></span>
+      </div>
+
+      <div class="prompt-box">
+        <div class="prompt-label">PROMPT</div>
+        <p id="prompt-text" class="prompt-text" lang="id"></p>
+      </div>
+
+      <button id="copy-btn" class="btn-primary copy-btn" type="button">Salin prompt</button>
+    </section>
+  </main>
+
+  <div id="bottom-bar" class="bottom-bar">
+    <div class="bar-inner">
+      <div class="summary">
+        <div id="summary-title" class="summary-title">Tangan · 0 kartu</div>
+        <div id="summary-cards" class="summary-cards">Belum ada kartu</div>
+      </div>
+      <button id="generate-btn" class="btn-primary generate-btn" type="button">
+        Buat prompt <span class="arrow" aria-hidden="true">→</span>
+      </button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <div id="how-sheet" class="sheet" hidden>
+    <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="how-title">
+      <h2 id="how-title">Cara kerja</h2>
+      <ol>
+        <li>Ketuk kartu untuk menambahkannya ke tangan Anda. Ketuk lagi untuk menambahkan salinan kartu tersebut.</li>
+        <li>Gunakan tombol tempat sampah di ujung setiap jenis kartu untuk menghapus kartu jenis itu saja.</li>
+        <li>Buat prompt akan mengubah kartu di tangan Anda menjadi pesan yang siap ditempel ke AI chat apa pun.</li>
+      </ol>
+      <button id="how-close" class="btn-primary sheet-close" type="button">Mengerti</button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var SUITS = [
+        { mark: '♠', name: 'Sekop' },
+        { mark: '♥', name: 'Hati' },
+        { mark: '♦', name: 'Wajik' },
+        { mark: '♣', name: 'Keriting' }
+      ];
+      var RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+      var RED = { '♥': true, '♦': true };
+      var STORAGE_KEY = 'pokerjawa.hand.v1';
+
+      var counts = loadCounts();
+      var tileRefs = {};
+      var countRefs = {};
+      var currentPrompt = '';
+      var currentScreen = 'cards';
+      var pushedPrompt = false;
+      var toastTimer = null;
+
+      var suitsEl = document.getElementById('suits');
+      var screenCards = document.getElementById('screen-cards');
+      var screenPrompt = document.getElementById('screen-prompt');
+      var bottomBar = document.getElementById('bottom-bar');
+      var summaryTitle = document.getElementById('summary-title');
+      var summaryCards = document.getElementById('summary-cards');
+      var handCards = document.getElementById('hand-cards');
+      var promptText = document.getElementById('prompt-text');
+      var toast = document.getElementById('toast');
+      var sheet = document.getElementById('how-sheet');
+      var howLink = document.getElementById('how-link');
+      var howClose = document.getElementById('how-close');
+
+      /* ---------- State ---------- */
+
+      function loadCounts() {
+        var out = {};
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return out;
+          var data = JSON.parse(raw);
+          if (!data || typeof data !== 'object' || Array.isArray(data)) return out;
+          for (var s = 0; s < SUITS.length; s++) {
+            for (var r = 0; r < RANKS.length; r++) {
+              var code = RANKS[r] + SUITS[s].mark;
+              var value = data[code];
+              if (typeof value === 'number' && isFinite(value) && value > 0) {
+                out[code] = Math.floor(value);
+              }
+            }
+          }
+        } catch (e) {
+          return {};
+        }
+        return out;
+      }
+
+      function persist() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(counts));
+        } catch (e) {
+          /* Storage can be unavailable in private mode. */
+        }
+      }
+
+      function totalCount() {
+        var total = 0;
+        for (var code in counts) {
+          if (Object.prototype.hasOwnProperty.call(counts, code)) {
+            total += counts[code] || 0;
+          }
+        }
+        return total;
+      }
+
+      function cardsString() {
+        var cards = [];
+        for (var s = 0; s < SUITS.length; s++) {
+          for (var r = 0; r < RANKS.length; r++) {
+            var code = RANKS[r] + SUITS[s].mark;
+            var n = counts[code] || 0;
+            for (var i = 0; i < n; i++) cards.push(code);
+          }
+        }
+        return cards.join(' ');
+      }
+
+      function promptFor(cards) {
+        return 'aku bermain poker jawa\n\n' +
+          'kartu di tanganku : ' + cards + '\n\n' +
+          'berikan aku strategi telak untuk menang cepat dengan berbagai combo atau murni strategi';
+      }
+
+      /* ---------- Build the card menu ---------- */
+
+      function buildMenu() {
+        for (var s = 0; s < SUITS.length; s++) {
+          var suit = SUITS[s];
+          var section = document.createElement('section');
+          section.className = 'suit' + (RED[suit.mark] ? ' red' : '');
+
+          var head = document.createElement('div');
+          head.className = 'suit-head';
+
+          var mark = document.createElement('span');
+          mark.className = 'suit-mark';
+          mark.setAttribute('aria-hidden', 'true');
+          mark.textContent = suit.mark;
+
+          var name = document.createElement('h2');
+          name.className = 'suit-name';
+          name.textContent = suit.name;
+
+          var count = document.createElement('span');
+          count.className = 'suit-count';
+          count.textContent = '0 dipilih';
+
+          head.appendChild(mark);
+          head.appendChild(name);
+          head.appendChild(count);
+          countRefs[suit.mark] = count;
+
+          var grid = document.createElement('div');
+          grid.className = 'grid';
+
+          for (var r = 0; r < RANKS.length; r++) {
+            var rank = RANKS[r];
+            var code = rank + suit.mark;
+            var tile = document.createElement('button');
+            tile.type = 'button';
+            tile.className = 'tile' + (RED[suit.mark] ? ' red' : '');
+            tile.dataset.code = code;
+            tile.setAttribute('aria-pressed', 'false');
+
+            var rankEl = document.createElement('span');
+            rankEl.className = 'rank';
+            rankEl.setAttribute('aria-hidden', 'true');
+            rankEl.textContent = rank;
+
+            var pipEl = document.createElement('span');
+            pipEl.className = 'pip';
+            pipEl.setAttribute('aria-hidden', 'true');
+            pipEl.textContent = suit.mark;
+
+            var badge = document.createElement('span');
+            badge.className = 'badge';
+            badge.setAttribute('aria-hidden', 'true');
+            badge.textContent = '0';
+
+            tile.appendChild(rankEl);
+            tile.appendChild(pipEl);
+            tile.appendChild(badge);
+
+            tile.addEventListener('click', (function (cardCode) {
+              return function () { addCard(cardCode); };
+            })(code));
+
+            grid.appendChild(tile);
+            tileRefs[code] = tile;
+          }
+
+          var trash = document.createElement('button');
+          trash.type = 'button';
+          trash.className = 'tile trash';
+          trash.setAttribute('aria-label', 'Hapus semua kartu ' + suit.name);
+          trash.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' +
+            '<path d="M3.5 5.5h13"/>' +
+            '<path d="M8 5.5v-2h4v2"/>' +
+            '<path d="M5.6 5.5l.6 10.5h7.6l.6-10.5"/>' +
+            '<path d="M8.4 9v4.2M11.6 9v4.2"/>' +
+            '</svg>';
+          trash.addEventListener('click', (function (mark) {
+            return function () { clearSuit(mark); };
+          })(suit.mark));
+
+          grid.appendChild(trash);
+
+          section.appendChild(head);
+          section.appendChild(grid);
+          suitsEl.appendChild(section);
+        }
+      }
+
+      /* ---------- Actions ---------- */
+
+      function addCard(code) {
+        counts[code] = (counts[code] || 0) + 1;
+        persist();
+        render();
+      }
+
+      function clearSuit(mark) {
+        var changed = false;
+        for (var r = 0; r < RANKS.length; r++) {
+          var code = RANKS[r] + mark;
+          if (counts[code]) {
+            delete counts[code];
+            changed = true;
+          }
+        }
+        if (changed) {
+          persist();
+          render();
+        }
+      }
+
+      /* ---------- Render ---------- */
+
+      function render() {
+        var total = 0;
+
+        for (var s = 0; s < SUITS.length; s++) {
+          var suit = SUITS[s];
+          var suitTotal = 0;
+
+          for (var r = 0; r < RANKS.length; r++) {
+            var code = RANKS[r] + suit.mark;
+            var n = counts[code] || 0;
+            suitTotal += n;
+
+            var tile = tileRefs[code];
+            var badge = tile.querySelector('.badge');
+
+            tile.classList.toggle('on', n > 0);
+            tile.setAttribute('aria-pressed', n > 0 ? 'true' : 'false');
+            tile.setAttribute('aria-label', RANKS[r] + ' ' + suit.name + ', ' + n + ' di tangan');
+
+            badge.textContent = String(n);
+            badge.classList.toggle('wide', n > 9);
+          }
+
+          total += suitTotal;
+          countRefs[suit.mark].textContent = suitTotal + ' dipilih';
+        }
+
+        summaryTitle.textContent = 'Tangan · ' + total + ' kartu';
+        var list = cardsString();
+        summaryCards.textContent = total ? list : 'Belum ada kartu';
+
+        if (currentScreen === 'prompt') renderPrompt();
+      }
+
+      function renderPrompt() {
+        var cards = cardsString();
+        currentPrompt = promptFor(cards);
+        handCards.textContent = cards;
+        promptText.textContent = currentPrompt;
+      }
+
+      /* ---------- Screens ---------- */
+
+      function showScreen(name) {
+        var prompt = name === 'prompt';
+        currentScreen = name;
+
+        screenCards.hidden = prompt;
+        screenPrompt.hidden = !prompt;
+        bottomBar.hidden = prompt;
+
+        if (prompt) renderPrompt();
+
+        window.scrollTo(0, 0);
+
+        try {
+          if (prompt) {
+            screenPrompt.focus({ preventScroll: true });
+          } else {
+            screenCards.focus({ preventScroll: true });
+          }
+        } catch (e) {
+          /* Older browsers ignore focus options. */
+        }
+      }
+
+      function openPrompt() {
+        if (totalCount() === 0) {
+          showToast('Pilih minimal satu kartu', 1800);
+          return;
+        }
+        showScreen('prompt');
+        try {
+          history.pushState({ screen: 'prompt' }, '', '#prompt');
+          pushedPrompt = true;
+        } catch (e) {
+          pushedPrompt = false;
+        }
+      }
+
+      function closePrompt() {
+        if (pushedPrompt) {
+          history.back();
+        } else {
+          showScreen('cards');
+        }
+      }
+
+      window.addEventListener('popstate', function () {
+        pushedPrompt = false;
+        if (location.hash === '#prompt' && totalCount() > 0) {
+          showScreen('prompt');
+        } else {
+          showScreen('cards');
+        }
+      });
+
+      /* ---------- Toast ---------- */
+
+      function showToast(message, duration) {
+        toast.textContent = message;
+        toast.classList.toggle('on-prompt', currentScreen === 'prompt');
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () {
+          toast.classList.remove('show');
+        }, duration || 1500);
+      }
+
+      /* ---------- Copy ---------- */
+
+      function copyText(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+          return navigator.clipboard.writeText(text).then(function () {
+            return true;
+          }).catch(function () {
+            return legacyCopy(text);
+          });
+        }
+        return Promise.resolve(legacyCopy(text));
+      }
+
+      function legacyCopy(text) {
+        var area = document.createElement('textarea');
+        area.value = text;
+        area.setAttribute('readonly', '');
+        area.style.position = 'fixed';
+        area.style.top = '-9999px';
+        area.style.left = '-9999px';
+        area.style.opacity = '0';
+        document.body.appendChild(area);
+        area.select();
+        area.setSelectionRange(0, text.length);
+        var ok = false;
+        try {
+          ok = document.execCommand('copy');
+        } catch (e) {
+          ok = false;
+        }
+        document.body.removeChild(area);
+        return ok;
+      }
+
+      /* ---------- How it works ---------- */
+
+      function openSheet() {
+        sheet.hidden = false;
+        document.body.classList.add('no-scroll');
+        howClose.focus();
+      }
+
+      function closeSheet() {
+        if (sheet.hidden) return;
+        sheet.hidden = true;
+        document.body.classList.remove('no-scroll');
+        howLink.focus();
+      }
+
+      sheet.addEventListener('click', function (event) {
+        if (event.target === sheet) closeSheet();
+      });
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && !sheet.hidden) closeSheet();
+      });
+
+      /* ---------- Wire up ---------- */
+
+      buildMenu();
+
+      screenCards.setAttribute('tabindex', '-1');
+      screenPrompt.setAttribute('tabindex', '-1');
+
+      document.getElementById('generate-btn').addEventListener('click', openPrompt);
+      document.getElementById('back-btn').addEventListener('click', closePrompt);
+      document.getElementById('copy-btn').addEventListener('click', function () {
+        if (!currentPrompt) renderPrompt();
+        copyText(currentPrompt).then(function (ok) {
+          showToast(ok ? 'Tersalin!' : 'Gagal menyalin — coba lagi', ok ? 1500 : 2200);
+        });
+      });
+
+      howLink.addEventListener('click', openSheet);
+      howClose.addEventListener('click', closeSheet);
+
+      render();
+
+      if (location.hash === '#prompt' && totalCount() > 0) {
+        showScreen('prompt');
+        try {
+          history.replaceState({ screen: 'prompt' }, '', '#prompt');
+        } catch (e) {
+          /* Ignore. */
+        }
+      }
+    })();
+  </script>
+</body>
+
+</html>
