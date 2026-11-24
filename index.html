@@ -932,8 +932,15 @@
           '- Kartu yang sama boleh muncul lebih dari satu kali, anggap valid\n\n' +
           'KARTU: ' + cards + '\n' +
           'GILIRAN: ' + turnText() + '\n\n' +
+          'PRINSIP STRATEGI:\n' +
+          '- Makin akhir ronde, kartu lawan yang harus dilawan makin besar. Kartu kecil makin tidak berguna untuk merebut giliran\n' +
+          '- Nilai kartu: kombo (pair, three of a kind, straight, flush, full house, four of a kind) dan kartu besar (K, A, 2) jauh lebih berharga daripada single kecil\n' +
+          '- Buang kartu kecil dan single lemah di awal selagi lawan masih memegang kartu rendah\n' +
+          '- Simpan kombo dan kartu besar untuk fase akhir sebagai pengambil giliran\n' +
+          '- Jangan pecah kombo kuat hanya demi membuang kartu kecil\n' +
+          '- Jangan buang kartu besar terlalu cepat untuk lawan yang masih lemah\n\n' +
           'TUGAS:\n' +
-          'Tentukan urutan buang kartu paling efisien agar habis secepat mungkin.\n\n' +
+          'Berdasarkan prinsip di atas, tentukan urutan buang kartu paling efisien agar habis secepat mungkin dan tetap punya kartu pengambil giliran di akhir.\n\n' +
           'ATURAN OUTPUT (WAJIB):\n' +
           '- Hanya tulis urutan langkah bernomor, satu langkah per baris\n' +
           '- Setiap langkah berisi kartu yang dibuang saja, contoh: "1. 3♠ 3♠"\n' +
