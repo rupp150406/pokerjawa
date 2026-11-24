@@ -163,6 +163,72 @@
       gap: 20px;
     }
 
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .opt {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Horizontal scroller: bleeds to the screen edges so chips peek in from the side */
+    .chip-row {
+      position: relative;
+      display: flex;
+      gap: 10px;
+      margin: 0 -16px;
+      padding: 0 16px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity;
+      scroll-padding: 0 16px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .chip-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .chip {
+      flex: none;
+      width: 64px;
+      height: 48px;
+      border-radius: 10px;
+      background: var(--tile);
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 22px;
+      scroll-snap-align: center;
+      transition: transform .1s ease;
+    }
+
+    .chip.turn {
+      font-size: 16px;
+    }
+
+    .chip.on {
+      background: var(--ink);
+      color: var(--on-ink);
+    }
+
+    .chip:active {
+      transform: scale(.96);
+    }
+
+    @media (hover: hover) {
+      .chip:not(.on):hover {
+        background: var(--tile2);
+      }
+    }
+
     .suit {
       display: flex;
       flex-direction: column;
@@ -457,6 +523,14 @@
       word-break: break-word;
     }
 
+    .hand-meta {
+      flex: 1 0 100%;
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 16px;
+      color: var(--mute);
+    }
+
     .prompt-box {
       margin-bottom: 16px;
       padding: 16px;
@@ -643,6 +717,22 @@
         </div>
         <button id="how-link" class="link-btn" type="button">Cara kerja</button>
       </header>
+      <div class="options">
+        <section class="opt" aria-labelledby="players-title">
+          <div class="suit-head">
+            <h2 id="players-title" class="suit-name">Pemain</h2>
+            <span id="players-count" class="suit-count">4 pemain</span>
+          </div>
+          <div id="players-row" class="chip-row" role="radiogroup" aria-labelledby="players-title"></div>
+        </section>
+        <section class="opt" aria-labelledby="turn-title">
+          <div class="suit-head">
+            <h2 id="turn-title" class="suit-name">Giliran Anda</h2>
+            <span id="turn-count" class="suit-count">jalan duluan</span>
+          </div>
+          <div id="turn-row" class="chip-row" role="radiogroup" aria-labelledby="turn-title"></div>
+        </section>
+      </div>
       <div id="suits" class="suits"></div>
     </section>
 
@@ -656,6 +746,7 @@
       <div class="hand-box">
         <span class="hand-label">Tangan</span>
         <span id="hand-cards" class="hand-cards"></span>
+        <span id="hand-meta" class="hand-meta"></span>
       </div>
 
       <div class="prompt-box">
@@ -686,6 +777,7 @@
       <h2 id="how-title">Cara kerja</h2>
       <ol>
         <li>Ketuk kartu untuk menambahkannya ke tangan Anda. Ketuk lagi untuk menambahkan salinan kartu tersebut.</li>
+        <li>Atur jumlah pemain (2–8) dan urutan giliran Anda. Geser ke kiri atau kanan untuk melihat pilihan lainnya.</li>
         <li>Gunakan tombol tempat sampah di ujung setiap jenis kartu untuk menghapus kartu jenis itu saja.</li>
         <li>Buat prompt akan mengubah kartu di tangan Anda menjadi pesan yang siap ditempel ke AI chat apa pun.</li>
       </ol>
@@ -706,8 +798,15 @@
       var RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
       var RED = { '♥': true, '♦': true };
       var STORAGE_KEY = 'pokerjawa.hand.v1';
+      var OPTS_KEY = 'pokerjawa.opts.v1';
+      var MIN_PLAYERS = 2;
+      var MAX_PLAYERS = 8;
+      var DECK_SIZE = 52;
 
       var counts = loadCounts();
+      var opts = loadOpts();
+      var playerChips = {};
+      var turnChips = {};
       var tileRefs = {};
       var countRefs = {};
       var currentPrompt = '';
@@ -722,6 +821,11 @@
       var summaryTitle = document.getElementById('summary-title');
       var summaryCards = document.getElementById('summary-cards');
       var handCards = document.getElementById('hand-cards');
+      var handMeta = document.getElementById('hand-meta');
+      var playersRow = document.getElementById('players-row');
+      var turnRow = document.getElementById('turn-row');
+      var playersCountEl = document.getElementById('players-count');
+      var turnCountEl = document.getElementById('turn-count');
       var promptText = document.getElementById('prompt-text');
       var toast = document.getElementById('toast');
       var sheet = document.getElementById('how-sheet');
@@ -760,6 +864,34 @@
         }
       }
 
+      function clampInt(value, min, max, fallback) {
+        if (typeof value !== 'number' || !isFinite(value)) return fallback;
+        return Math.min(max, Math.max(min, Math.floor(value)));
+      }
+
+      function loadOpts() {
+        var out = { players: 4, turn: 1 };
+        try {
+          var raw = localStorage.getItem(OPTS_KEY);
+          if (!raw) return out;
+          var data = JSON.parse(raw);
+          if (!data || typeof data !== 'object') return out;
+          out.players = clampInt(data.players, MIN_PLAYERS, MAX_PLAYERS, 4);
+          out.turn = clampInt(data.turn, 1, out.players, 1);
+        } catch (e) {
+          return { players: 4, turn: 1 };
+        }
+        return out;
+      }
+
+      function persistOpts() {
+        try {
+          localStorage.setItem(OPTS_KEY, JSON.stringify(opts));
+        } catch (e) {
+          /* Storage can be unavailable in private mode. */
+        }
+      }
+
       function totalCount() {
         var total = 0;
         for (var code in counts) {
@@ -782,10 +914,40 @@
         return cards.join(' ');
       }
 
+      function turnText() {
+        if (opts.turn === 1) return 'Aku jalan duluan';
+        return 'Aku tidak jalan duluan, giliranku urutan ke-' + opts.turn + ' dari ' + opts.players + ' pemain';
+      }
+
       function promptFor(cards) {
-        return 'aku bermain poker jawa\n\n' +
-          'kartu di tanganku : ' + cards + '\n\n' +
-          'berikan aku strategi telak untuk menang cepat dengan berbagai combo atau murni strategi';
+        var each = Math.floor(DECK_SIZE / opts.players);
+        return 'Kamu adalah ahli Capsa Banting (sering disebut "Poker Jawa"), mirip Big Two.\n\n' +
+          'ATURAN:\n' +
+          '- ' + opts.players + ' pemain, masing-masing ' + each + ' kartu\n' +
+          '- Urutan angka: 3 (terendah) sampai 2 (tertinggi)\n' +
+          '- Urutan jenis: Wajik < Keriting < Hati < Sekop\n' +
+          '- Pemegang kartu terendah (3 wajik) jalan duluan\n' +
+          '- Balasan harus sejenis kombinasi dan lebih tinggi, atau pass\n' +
+          '- Kombinasi: single, pair, three of a kind, straight, flush, full house, four of a kind (+1 kartu), straight flush\n' +
+          '- Menang: yang pertama menghabiskan kartu\n\n' +
+          'KARTU DI TANGANKU:\n' + cards + '\n\n' +
+          'JUMLAH LAWAN: ' + (opts.players - 1) + '\n' +
+          'GILIRAN: ' + turnText() + '\n\n' +
+          'TUGASMU:\n' +
+          '1. Cek dulu apakah ada kartu ganda atau tidak valid. Kalau ada, beri tahu.\n' +
+          '2. Daftarkan semua kombinasi yang mungkin dari kartuku.\n' +
+          '3. Susun urutan buang kartu yang paling efisien untuk habis dalam langkah paling sedikit.\n' +
+          '4. Tunjukkan satu rencana alternatif kalau lawan menghalangi rencana utama.\n' +
+          '5. Tandai kartu "pengambil giliran" (kontrol) dan kartu "sampah" (harus dibuang cepat).\n' +
+          '6. Beri strategi bertahan: kapan pass, kapan menahan lawan yang hampir habis.\n' +
+          '7. Beri penilaian kekuatan tangan (lemah/sedang/kuat) beserta alasannya.\n\n' +
+          'FORMAT JAWABAN:\n' +
+          '- Penilaian tangan (1-2 kalimat)\n' +
+          '- Kombinasi yang tersedia\n' +
+          '- Rencana utama (langkah bernomor)\n' +
+          '- Rencana cadangan\n' +
+          '- 3 tips taktis\n' +
+          'Jawab singkat, padat, dalam Bahasa Indonesia.';
       }
 
       /* ---------- Build the card menu ---------- */
@@ -878,6 +1040,85 @@
         }
       }
 
+      /* ---------- Build the options (players + turn) ---------- */
+
+      function ordinal(n) {
+        return 'Ke-' + n;
+      }
+
+      function makeChip(label, className, group, onPick) {
+        var chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = className;
+        chip.setAttribute('role', 'radio');
+        chip.setAttribute('aria-checked', 'false');
+        chip.textContent = label;
+        chip.addEventListener('click', onPick);
+        group.appendChild(chip);
+        return chip;
+      }
+
+      function buildOptions() {
+        var p, t;
+        for (p = MIN_PLAYERS; p <= MAX_PLAYERS; p++) {
+          playerChips[p] = makeChip(String(p), 'chip', playersRow, (function (n) {
+            return function () { setPlayers(n); };
+          })(p));
+          playerChips[p].setAttribute('aria-label', p + ' pemain');
+        }
+        for (t = 1; t <= MAX_PLAYERS; t++) {
+          turnChips[t] = makeChip(ordinal(t), 'chip turn', turnRow, (function (n) {
+            return function () { setTurn(n); };
+          })(t));
+          turnChips[t].setAttribute('aria-label', 'Giliran ke-' + t);
+        }
+      }
+
+      function centerChip(row, chip, smooth) {
+        if (!chip) return;
+        var left = chip.offsetLeft - (row.clientWidth - chip.offsetWidth) / 2;
+        try {
+          row.scrollTo({ left: Math.max(0, left), behavior: smooth ? 'smooth' : 'auto' });
+        } catch (e) {
+          row.scrollLeft = Math.max(0, left);
+        }
+      }
+
+      function setPlayers(n) {
+        if (opts.players === n) return;
+        opts.players = n;
+        if (opts.turn > n) opts.turn = n;
+        persistOpts();
+        renderOptions();
+        centerChip(playersRow, playerChips[n], true);
+      }
+
+      function setTurn(n) {
+        if (opts.turn === n) return;
+        opts.turn = n;
+        persistOpts();
+        renderOptions();
+        centerChip(turnRow, turnChips[n], true);
+      }
+
+      function renderOptions() {
+        var p, t;
+        for (p = MIN_PLAYERS; p <= MAX_PLAYERS; p++) {
+          var onP = p === opts.players;
+          playerChips[p].classList.toggle('on', onP);
+          playerChips[p].setAttribute('aria-checked', onP ? 'true' : 'false');
+        }
+        for (t = 1; t <= MAX_PLAYERS; t++) {
+          var onT = t === opts.turn;
+          turnChips[t].hidden = t > opts.players;
+          turnChips[t].classList.toggle('on', onT);
+          turnChips[t].setAttribute('aria-checked', onT ? 'true' : 'false');
+        }
+        playersCountEl.textContent = opts.players + ' pemain';
+        turnCountEl.textContent = opts.turn === 1 ? 'jalan duluan' : 'jalan ke-' + opts.turn + ' dari ' + opts.players;
+        if (currentScreen === 'prompt') renderPrompt();
+      }
+
       /* ---------- Actions ---------- */
 
       function addCard(code) {
@@ -941,6 +1182,7 @@
         var cards = cardsString();
         currentPrompt = promptFor(cards);
         handCards.textContent = cards;
+        handMeta.textContent = opts.players + ' pemain · ' + (opts.turn === 1 ? 'jalan duluan' : 'jalan ke-' + opts.turn);
         promptText.textContent = currentPrompt;
       }
 
@@ -1072,6 +1314,7 @@
       /* ---------- Wire up ---------- */
 
       buildMenu();
+      buildOptions();
 
       screenCards.setAttribute('tabindex', '-1');
       screenPrompt.setAttribute('tabindex', '-1');
@@ -1089,6 +1332,9 @@
       howClose.addEventListener('click', closeSheet);
 
       render();
+      renderOptions();
+      centerChip(playersRow, playerChips[opts.players], false);
+      centerChip(turnRow, turnChips[opts.turn], false);
 
       if (location.hash === '#prompt' && totalCount() > 0) {
         showScreen('prompt');
