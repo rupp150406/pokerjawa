@@ -921,33 +921,24 @@
 
       function promptFor(cards) {
         var each = Math.floor(DECK_SIZE / opts.players);
-        return 'Kamu adalah ahli Capsa Banting (sering disebut "Poker Jawa"), mirip Big Two.\n\n' +
+        return 'Kamu ahli Capsa Banting (Poker Jawa), mirip Big Two.\n\n' +
           'ATURAN:\n' +
           '- ' + opts.players + ' pemain, masing-masing ' + each + ' kartu\n' +
           '- Urutan angka: 3 (terendah) sampai 2 (tertinggi)\n' +
           '- Urutan jenis: Wajik < Keriting < Hati < Sekop\n' +
-          '- Pemegang kartu terendah (3 wajik) jalan duluan\n' +
           '- Balasan harus sejenis kombinasi dan lebih tinggi, atau pass\n' +
           '- Kombinasi: single, pair, three of a kind, straight, flush, full house, four of a kind (+1 kartu), straight flush\n' +
-          '- Menang: yang pertama menghabiskan kartu\n\n' +
-          'KARTU DI TANGANKU:\n' + cards + '\n\n' +
-          'JUMLAH LAWAN: ' + (opts.players - 1) + '\n' +
+          '- Menang: yang pertama menghabiskan kartu\n' +
+          '- Kartu yang sama boleh muncul lebih dari satu kali, anggap valid\n\n' +
+          'KARTU: ' + cards + '\n' +
           'GILIRAN: ' + turnText() + '\n\n' +
-          'TUGASMU:\n' +
-          '1. Cek dulu apakah ada kartu ganda atau tidak valid. Kalau ada, beri tahu.\n' +
-          '2. Daftarkan semua kombinasi yang mungkin dari kartuku.\n' +
-          '3. Susun urutan buang kartu yang paling efisien untuk habis dalam langkah paling sedikit.\n' +
-          '4. Tunjukkan satu rencana alternatif kalau lawan menghalangi rencana utama.\n' +
-          '5. Tandai kartu "pengambil giliran" (kontrol) dan kartu "sampah" (harus dibuang cepat).\n' +
-          '6. Beri strategi bertahan: kapan pass, kapan menahan lawan yang hampir habis.\n' +
-          '7. Beri penilaian kekuatan tangan (lemah/sedang/kuat) beserta alasannya.\n\n' +
-          'FORMAT JAWABAN:\n' +
-          '- Penilaian tangan (1-2 kalimat)\n' +
-          '- Kombinasi yang tersedia\n' +
-          '- Rencana utama (langkah bernomor)\n' +
-          '- Rencana cadangan\n' +
-          '- 3 tips taktis\n' +
-          'Jawab singkat, padat, dalam Bahasa Indonesia.';
+          'TUGAS:\n' +
+          'Tentukan urutan buang kartu paling efisien agar habis secepat mungkin.\n\n' +
+          'ATURAN OUTPUT (WAJIB):\n' +
+          '- Hanya tulis urutan langkah bernomor, satu langkah per baris\n' +
+          '- Setiap langkah berisi kartu yang dibuang saja, contoh: "1. 3♠ 3♠"\n' +
+          '- Hanya satu rencana, tanpa alternatif\n' +
+          '- Tanpa penjelasan, alasan, komentar, pembuka, atau penutup';
       }
 
       /* ---------- Build the card menu ---------- */
